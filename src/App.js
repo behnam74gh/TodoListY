@@ -6,9 +6,14 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [errorText, setErrorText] = useState("");
     const [tasks, setTasks] = useState([]);
-    
+    const [task, setTask] = useState({
+      title: "",
+      description: ""
+    });
+    const [taskAdded, setTaskAdded] = useState(false)
 
     useEffect(() => {
+      console.log('useEffect rendered');
         axios
           .get("http://localhost:3000/tasks")
           .then((response) => {
@@ -27,10 +32,41 @@ const App = () => {
           .finally(() => {
             setLoading(false);
           });
-    }, []);
+    }, [taskAdded]);
+
+   
+      const submitHandler = (e) => {
+        e.preventDefault();
+    
+        setLoading(true);
+        setTaskAdded(false);
+        axios
+          .post("http://localhost:3000/tasks", {
+            id: tasks.length + 1,
+            title: task.title,
+            description: task.description,
+            isDone: false
+          })
+          .then((response) => {
+            console.log("post --->", response);
+            if (response.status === 201) {
+              setTask({
+                title: "",
+                description: ""
+              });
+              setTaskAdded(true);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      };
 
   return (
-    <div className='todo-container'>
+    <div className='todo-container' dir='rtl'>
         <div className="todo-wrapper">
           <h5>وظیفه های مقرر شده</h5>
             {loading ? (
@@ -48,13 +84,30 @@ const App = () => {
                   <input
                     type="checkbox"
                     className="check-task-status"
-                    value={task.isDone.toLowerCase() === "true" ? true : false}
-                    checked={task.isDone.toLowerCase() === "true" ? true : false}
+                    value={task.isDone ? true : false}
+                    checked={task.isDone ? true : false}
                   />
                 </div>
               </div>
             ))
             )}
+        </div>
+
+        <div className="form-wrapper">
+          <h4>لطفا عنوان و متن یادداشت را وارد نمایید</h4>
+          <form className="todo-form" onSubmit={submitHandler}>
+            <input type='text' placeholder='عنوان' value={task.title}
+              onChange={(e) => setTask({...task, title: e.target.value})}
+            />
+
+            <textarea value={task.description} placeholder='توضیحات' rows="5"
+              onChange={(e) => setTask({...task, description: e.target.value})}
+            ></textarea>
+            
+            <button type="submit">
+            {!loading ? "ثبت" : "Loading ..."}
+            </button>
+          </form>
         </div>
     </div>
   )

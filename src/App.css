@@ -17,7 +17,7 @@
 }
 .task-wrapper {
   display: flex;
-  flex-flow: row-reverse wrap;
+  flex-flow: row wrap;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -38,4 +38,16 @@
 .delete-button {
   all: unset;
   font-size: 10px;
+}
+
+/* form styles */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.todo-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 10px 0;
 }
