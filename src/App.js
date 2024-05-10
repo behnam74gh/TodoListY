@@ -1,34 +1,25 @@
-import React, {useCallback, useEffect, useState} from 'react'
-import axios from 'axios';
+import React, {useCallback, useEffect, useContext} from 'react'
+import { TodoContext } from './Provider/Provider';
 import TodoList from './components/TodoList/TodoList';
 import TodoForm from './components/TodoForm/TodoForm';
+import { getAllTasks } from './Api/Api-functions';
 import './App.css';
 
 const App = () => {
-  const [loading, setLoading] = useState(false);
-  const [errorText, setErrorText] = useState("");
-  const [tasks, setTasks] = useState([]);
+  const { setAllTasksHandler } = useContext(TodoContext);
 
   const fetchTasksHandler = useCallback(() => {
-    setLoading(true);
-    axios
-    .get("http://localhost:3000/tasks")
+    setAllTasksHandler({tasksLoading: true});
+
+    getAllTasks()
     .then((response) => {
       if (response.status === 200) {
-        setTasks(response.data);
-        errorText?.length > 0 && setErrorText("");
+        setAllTasksHandler({tasksLoading: false,tasks: response.data,tasksErrorText: ""});
+      }else{
+        setAllTasksHandler({tasksLoading: false,tasksErrorText: response.statusText});
       }
-    })
-    .catch((err) => {
-      if (err) {
-        setErrorText(err.message);
-        setTasks([]);
-      }
-    })
-    .finally(() => {
-      setLoading(false);
     });
-  }, [])
+  }, []);
 
   useEffect(() => {
     fetchTasksHandler();
@@ -38,7 +29,7 @@ const App = () => {
     <div dir='rtl' className='todo-container'>
       <TodoForm fetchTasks={fetchTasksHandler} />
       <hr />
-      <TodoList loading={loading} tasks={tasks} errorText={errorText} fetchTasks={fetchTasksHandler} />
+      <TodoList fetchTasks={fetchTasksHandler} />
     </div>
   )
 }

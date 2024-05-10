@@ -1,48 +1,40 @@
 import React,{ useContext, useState } from 'react';
 import { TodoContext } from '../../Provider/Provider';
-import axios from 'axios';
+import { changeTaskStatus, deleteTask } from '../../Api/Api-functions';
 import './TodoList.css';
 
 const TodoList = (props) => {
-  const {loading,tasks,fetchTasks} = props;
-  const {activeTask,setActiveTaskHandler,setModeHandler,setTaskHandler} = useContext(TodoContext);
+  const {fetchTasks} = props;
+  const {activeTask,setActiveTaskHandler,setModeHandler,setTaskHandler,allTasks: {tasks,tasksLoading,tasksErrorText}} = useContext(TodoContext);
   const [errorText, setErrorText] = useState("");
 
   const removeTaskHandler = (id) => {
     if (window.confirm("برای حذف این یادداشت مطئن هستید؟")) {
-      axios
-        .delete(`http://localhost:3000/tasks/${id}`)
+        deleteTask(id)
         .then((response) => {
           if (response.status === 200) {
             window.alert("یادداشت حذف شد");
+            fetchTasks();
+            setErrorText("");
+          }else{
+            setErrorText(response.statusText);
           }
-        })
-        .catch((err) => {
-          if (err) {
-            setErrorText(err.message);
-          }
-        })
-        .finally(() => {
-          fetchTasks();
         });
     }
   };
+
   const changeStatusHandler = (task) => {
     const {isDone, id} = task;
 
-    axios
-    .patch(`http://localhost:3000/tasks/${id}`, { isDone: !isDone })
+    changeTaskStatus(id, isDone)
     .then((response) => {
       if (response.status === 200) {
         window.alert("وضعیت یادداشت تغییر کرد");
+        fetchTasks();
+        setErrorText("");
+      }else{
+        setErrorText(response.statusText);
       }
-    })
-    .catch((err) => {
-      if (err) {
-        setErrorText(err.message);
-      }
-    }).finally(() => {
-      fetchTasks();
     });
   };
 
@@ -71,9 +63,9 @@ const TodoList = (props) => {
   return (
     <div className="todo-wrapper">
         <h5>یادداشت های ثبت شده</h5>
-        {loading ? (
+        {tasksLoading ? (
         <div className="w-100">
-            <span>Loading...</span>
+            <span>در حال بارگیری</span>
         </div>
         ) : (
         tasks.length > 0 &&
@@ -98,8 +90,9 @@ const TodoList = (props) => {
         ))
         )}
         {errorText.length > 0 && <p className='warning-message'>{errorText}</p>}
+        {tasksErrorText.length > 0 && <p className='warning-message'>{tasksErrorText}</p>}
       </div>
   )
 }
 
-export default TodoList
+export default React.memo(TodoList)

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { TodoContext } from '../../Provider/Provider';
-import axios from 'axios';
+import { createTask, updateTask } from '../../Api/Api-functions';
 import './TodoForm.css';
 
 const TodoForm = (props) => {
@@ -14,57 +14,40 @@ const TodoForm = (props) => {
 
     setLoading(true);
     if(mode === "create"){
-      axios
-      .post("http://localhost:3000/tasks", {
-        title: task.title,
-        description: task.description,
-        isDone: task.isDone
-      })
-      .then((response) => {
-        if (response.status === 201) {
-          setTaskHandler({
-            id: "",
-            title: "",
-            description: "",
-            isDone: false
-          });
-        }
-      })
-      .catch((err) => {
-        setErrorText(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-        fetchTasks();
-      });
-    }else{
-      axios
-      .patch(`http://localhost:3000/tasks/${task.id}`, { title: task.title, description: task.description })
-      .then((response) => {
-        if (response.status === 200) {
+        createTask(task)
+        .then((response) => {
+            setLoading(false);
+            if (response.status === 201) {
             setTaskHandler({
-              id: "",
-              title: "",
-              description: "",
-              isDone: false
+                id: "",
+                title: "",
+                description: "",
+                isDone: false
             });
-        }
-      })
-      .catch((err) => {
-        setErrorText(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-        setActiveTaskHandler("");
-        setTaskHandler({
-            id: "",
-            title: "",
-            description: "",
-            isDone: false
+            fetchTasks();
+            setErrorText("");
+            }else{
+                setErrorText(response.statusText);
+            }
+        })
+    }else{
+        updateTask(task)
+        .then((response) => {
+            setLoading(false);
+            if (response.status === 200) {
+                setTaskHandler({
+                id: "",
+                title: "",
+                description: "",
+                isDone: false
+                });
+                setActiveTaskHandler("");
+                setModeHandler('create');
+                fetchTasks();
+            }else{
+                setErrorText(response.statusText);
+            }
         });
-        setModeHandler('create');
-        fetchTasks();
-      });;
     }
   };
 
@@ -89,4 +72,4 @@ const TodoForm = (props) => {
   )
 }
 
-export default TodoForm
+export default React.memo(TodoForm)
