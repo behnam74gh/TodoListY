@@ -3,12 +3,16 @@ import axios from 'axios';
 import './App.css';
 
 const App = () => {
+  const [mode, setMode] = useState('create');
+  const [activeTask, setActiveTask] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState({
+    id: "",
     title: "",
-    description: ""
+    description: "",
+    isDone: false
   });
   // const [tasksUpdated, setTasksUpdated] = useState(false);
 
@@ -30,7 +34,7 @@ const App = () => {
         }
       })
       .finally(() => {
-        setLoading(false);
+        loading && setLoading(false);
       });
   }, []);
 
@@ -38,11 +42,12 @@ const App = () => {
     e.preventDefault();
 
     setLoading(true);
-    axios
+    if(mode === "create"){
+      axios
       .post("http://localhost:3000/tasks", {
         title: task.title,
         description: task.description,
-        isDone: false
+        isDone: task.isDone
       })
       .then((response) => {
         if (response.status === 201) {
@@ -59,6 +64,36 @@ const App = () => {
       .finally(() => {
         setLoading(false);
       });
+    }else{
+      axios
+      .patch(`http://localhost:3000/tasks/${task.id}`, { title: task.title, description: task.description })
+      .then((response) => {
+        if (response.status === 200) {
+          // window.alert("وضعیت یادداشت تغییر کرد");
+          setTask({
+            title: "",
+            description: ""
+          });
+        }
+      })
+      .catch((err) => {
+        console.log('c -> ',err);
+        if (err.response) {
+          window.alert(err.response.statusText)
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setActiveTask("");
+        setTask({
+          id: "",
+          title: "",
+          description: "",
+          isDone: false
+        });
+        setMode('create');
+      });;
+    }
   };
   const removeTaskHandler = (id) => {
     if (window.confirm("برای حذف این یادداشت مطئن هستید؟")) {
@@ -81,20 +116,41 @@ const App = () => {
     const {isDone, id} = task;
 
     axios
-      .patch(`http://localhost:3000/tasks/${id}`, { isDone: !isDone })
-      .then((response) => {
-        if (response.status === 200) {
-          window.alert("وضعیت یادداشت تغییر کرد");
-        }
-      })
-      .catch((err) => {
-        console.log('c -> ',err);
-        if (err.response) {
-          window.alert(err.response.statusText)
-        }
-      });
-    };
+    .patch(`http://localhost:3000/tasks/${id}`, { isDone: !isDone })
+    .then((response) => {
+      if (response.status === 200) {
+        window.alert("وضعیت یادداشت تغییر کرد");
+      }
+    })
+    .catch((err) => {
+      console.log('c -> ',err);
+      if (err.response) {
+        window.alert(err.response.statusText)
+      }
+    });
+  };
 
+  const updateTaskHandler = (task) => {
+    if(activeTask?.length > 0 && activeTask === task.id){
+      setActiveTask("");
+      setTask({
+        id: "",
+        title: "",
+        description: "",
+        isDone: false
+      });
+      setMode('create');
+    }else{
+      setMode('update');
+      setActiveTask(task.id);
+      setTask({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        isDone: task.isDone
+      });
+    }
+  }
 
   return (
     <div className='todo-container' dir='rtl'>
@@ -110,7 +166,7 @@ const App = () => {
           ></textarea>
           
           <button type="submit">
-          {!loading ? "ثبت" : "Loading ..."}
+          {loading ? "Loading ..." : mode === "create" ? "ثبت یادداشت" : "ویرایش یادداشت"}
           </button>
         </form>
       </div>
@@ -126,11 +182,13 @@ const App = () => {
           ) : (
           tasks.length > 0 &&
           tasks.map((task) => (
-            <div className="task-wrapper" key={task.id}>
+            <div className="task-wrapper" style={{background: activeTask === task.id && "#E1AFD1"}} key={task.id}>
               <strong className='title'>{task.title}</strong>
               <p className='description'>{task.description}</p>
               <div className="tasks-options-wrapper">
-                <button type='button' className='update-button' onClick={() => removeTaskHandler(task.id)}>ویرایش</button>
+                <button type='button' className='update-button' onClick={() => updateTaskHandler(task)}>
+                  {activeTask === task.id ? "لغو" : "ویرایش"}
+                </button>
                 <button type='button' className='delete-button' onClick={() => removeTaskHandler(task.id)}>حذف</button>
                 <input
                   type="checkbox"
