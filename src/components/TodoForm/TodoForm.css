@@ -1,0 +1,31 @@
+.form-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+.todo-form {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+    gap: 10px 0;
+}
+input, textarea {
+    font-family: "vazir" !important;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid #eaeaea;
+}
+button {
+    all: unset;
+    border: 1px solid #FFE6E6;
+    border-radius: 5px;
+    background-color: #7469B6;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+}

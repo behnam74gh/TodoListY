@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import './TodoList.css';
 
 const TodoList = (props) => {
     const {loading,tasks,updateTask,removeTask,changeStatus,activeTask,errorText} = props;

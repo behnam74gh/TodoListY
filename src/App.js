@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import axios from 'axios';
-import './App.css';
 import TodoList from './components/TodoList/TodoList';
+import TodoForm from './components/TodoForm/TodoForm';
+import './App.css';
 
 const App = () => {
   const [mode, setMode] = useState('create');
@@ -16,7 +17,7 @@ const App = () => {
     isDone: false
   });
 
-  const fetchTasksHandler = () => {
+  const fetchTasksHandler = useCallback(() => {
     setLoading(true);
     axios
     .get("http://localhost:3000/tasks")
@@ -35,7 +36,7 @@ const App = () => {
     .finally(() => {
       setLoading(false);
     });
-  }
+  }, [])
 
   useEffect(() => {
     fetchTasksHandler();
@@ -156,26 +157,9 @@ const App = () => {
   }
 
   return (
-    <div className='todo-container' dir='rtl'>
-      <div className="form-wrapper">
-        <h5>لطفا عنوان و متن یادداشت را وارد نمایید</h5>
-        <form className="todo-form" onSubmit={submitHandler}>
-          <input type='text' placeholder='عنوان' value={task.title} className='w-50'
-            onChange={(e) => setTask({...task, title: e.target.value})}
-          />
-
-          <textarea value={task.description} placeholder='توضیحات' rows="5" className='w-50'
-            onChange={(e) => setTask({...task, description: e.target.value})}
-          ></textarea>
-          
-          <button type="submit" className='w-25'>
-          {loading ? "Loading ..." : mode === "create" ? "ثبت یادداشت" : "ویرایش یادداشت"}
-          </button>
-        </form>
-      </div>
-
+    <div dir='rtl' className='todo-container'>
+      <TodoForm loading={loading} mode={mode} task={task} setTask={setTask} submitHandler={submitHandler}/>
       <hr />
-
       <TodoList loading={loading} tasks={tasks} errorText={errorText} activeTask={activeTask}
         updateTask={updateTaskHandler} removeTask={removeTaskHandler} changeStatus={changeStatusHandler}
       />
