@@ -25,6 +25,7 @@
 }
 .title {
   font-size: 14px;
+  color: #AD88C6;
 }
 .description {
   font-size: 12px;
@@ -36,8 +37,17 @@
   width: 80px;
 }
 .delete-button {
-  all: unset;
   font-size: 10px;
+  border: 1px solid #FFE6E6;
+  padding: 2px 10px;
+  border-radius: 5px;
+  background-color: #7469B6;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+.check-task-status {
+  cursor: pointer;
 }
 
 /* form styles */
@@ -50,4 +60,23 @@
   flex-direction: column;
   justify-content: space-around;
   gap: 10px 0;
+}
+input, textarea {
+  font-family: "vazir" !important;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: 1px solid #7469B6;
+}
+button {
+  all: unset;
+  border: 1px solid #FFE6E6;
+  border-radius: 5px;
+  background-color: #7469B6;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+h5 {
+  color: #7469B6;
 }

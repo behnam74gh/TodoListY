@@ -94,7 +94,7 @@ const App = () => {
         </div>
 
         <div className="form-wrapper">
-          <h4>لطفا عنوان و متن یادداشت را وارد نمایید</h4>
+          <h5>لطفا عنوان و متن یادداشت را وارد نمایید</h5>
           <form className="todo-form" onSubmit={submitHandler}>
             <input type='text' placeholder='عنوان' value={task.title}
               onChange={(e) => setTask({...task, title: e.target.value})}
