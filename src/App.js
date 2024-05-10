@@ -14,28 +14,30 @@ const App = () => {
     description: "",
     isDone: false
   });
-  // const [tasksUpdated, setTasksUpdated] = useState(false);
+
+  const fetchTasksHandler = () => {
+    setLoading(true);
+    axios
+    .get("http://localhost:3000/tasks")
+    .then((response) => {
+      if (response.status === 200) {
+        setTasks(response.data);
+        errorText?.length > 0 && setErrorText("");
+      }
+    })
+    .catch((err) => {
+      if (err) {
+        setErrorText(err.message);
+        setTasks([]);
+      }
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  }
 
   useEffect(() => {
-    console.log('useEffect rendered');
-    axios
-      .get("http://localhost:3000/tasks")
-      .then((response) => {
-        console.log('=>',response);
-        if (response.status === 200) {
-          setTasks(response.data);
-          errorText?.length > 0 && setErrorText("");
-        }
-      })
-      .catch((err) => {
-        if (err.response) {
-          setErrorText(err.response.data.message);
-          setTasks([]);
-        }
-      })
-      .finally(() => {
-        loading && setLoading(false);
-      });
+    fetchTasksHandler();
   }, []);
 
   const submitHandler = (e) => {
@@ -55,21 +57,20 @@ const App = () => {
             title: "",
             description: ""
           });
-          // setTasksUpdated(true);
         }
       })
       .catch((err) => {
-        console.log(err);
+        setErrorText(err.message);
       })
       .finally(() => {
         setLoading(false);
+        fetchTasksHandler();
       });
     }else{
       axios
       .patch(`http://localhost:3000/tasks/${task.id}`, { title: task.title, description: task.description })
       .then((response) => {
         if (response.status === 200) {
-          // window.alert("وضعیت یادداشت تغییر کرد");
           setTask({
             title: "",
             description: ""
@@ -77,10 +78,7 @@ const App = () => {
         }
       })
       .catch((err) => {
-        console.log('c -> ',err);
-        if (err.response) {
-          window.alert(err.response.statusText)
-        }
+        setErrorText(err.message);
       })
       .finally(() => {
         setLoading(false);
@@ -92,6 +90,7 @@ const App = () => {
           isDone: false
         });
         setMode('create');
+        fetchTasksHandler();
       });;
     }
   };
@@ -101,14 +100,16 @@ const App = () => {
         .delete(`http://localhost:3000/tasks/${id}`)
         .then((response) => {
           if (response.status === 200) {
-            // setTasksUpdated(true);
+            window.alert("یادداشت حذف شد");
           }
         })
         .catch((err) => {
           if (err) {
-            console.log('r -> ', err);
-            window.alert(err.response.statusText)
+            setErrorText(err.message);
           }
+        })
+        .finally(() => {
+          fetchTasksHandler();
         });
     }
   };
@@ -123,10 +124,11 @@ const App = () => {
       }
     })
     .catch((err) => {
-      console.log('c -> ',err);
-      if (err.response) {
-        window.alert(err.response.statusText)
+      if (err) {
+        setErrorText(err.message);
       }
+    }).finally(() => {
+      fetchTasksHandler();
     });
   };
 
@@ -157,15 +159,15 @@ const App = () => {
       <div className="form-wrapper">
         <h5>لطفا عنوان و متن یادداشت را وارد نمایید</h5>
         <form className="todo-form" onSubmit={submitHandler}>
-          <input type='text' placeholder='عنوان' value={task.title}
+          <input type='text' placeholder='عنوان' value={task.title} className='w-100'
             onChange={(e) => setTask({...task, title: e.target.value})}
           />
 
-          <textarea value={task.description} placeholder='توضیحات' rows="5"
+          <textarea value={task.description} placeholder='توضیحات' rows="5" className='w-100'
             onChange={(e) => setTask({...task, description: e.target.value})}
           ></textarea>
           
-          <button type="submit">
+          <button type="submit" className='w-50'>
           {loading ? "Loading ..." : mode === "create" ? "ثبت یادداشت" : "ویرایش یادداشت"}
           </button>
         </form>
@@ -175,32 +177,33 @@ const App = () => {
 
       <div className="todo-wrapper">
         <h5>یادداشت های ثبت شده</h5>
-          {loading ? (
-          <div className="w-100">
-              <span>Loading...</span>
-          </div>
-          ) : (
-          tasks.length > 0 &&
-          tasks.map((task) => (
-            <div className="task-wrapper" style={{background: activeTask === task.id && "#E1AFD1"}} key={task.id}>
-              <strong className='title'>{task.title}</strong>
-              <p className='description'>{task.description}</p>
-              <div className="tasks-options-wrapper">
-                <button type='button' className='update-button' onClick={() => updateTaskHandler(task)}>
-                  {activeTask === task.id ? "لغو" : "ویرایش"}
-                </button>
-                <button type='button' className='delete-button' onClick={() => removeTaskHandler(task.id)}>حذف</button>
-                <input
-                  type="checkbox"
-                  className="check-task-status"
-                  value={task.isDone ? true : false}
-                  checked={task.isDone ? true : false}
-                  onChange={() => changeStatusHandler(task)}
-                />
-              </div>
+        {loading ? (
+        <div className="w-100">
+            <span>Loading...</span>
+        </div>
+        ) : (
+        tasks.length > 0 &&
+        tasks.map((task) => (
+          <div className="task-wrapper" style={{background: activeTask === task.id && "#E1AFD1"}} key={task.id}>
+            <strong className='title'>{task.title}</strong>
+            <p className='description'>{task.description}</p>
+            <div className="tasks-options-wrapper">
+              <button type='button' className='update-button' onClick={() => updateTaskHandler(task)}>
+                {activeTask === task.id ? "لغو" : "ویرایش"}
+              </button>
+              <button type='button' className='delete-button' onClick={() => removeTaskHandler(task.id)}>حذف</button>
+              <input
+                type="checkbox"
+                className="check-task-status"
+                value={task.isDone ? true : false}
+                checked={task.isDone ? true : false}
+                onChange={() => changeStatusHandler(task)}
+              />
             </div>
-          ))
-          )}
+          </div>
+        ))
+        )}
+        {errorText.length > 0 && <p className='warning-message'>{errorText}</p>}
       </div>
     </div>
   )
