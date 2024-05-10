@@ -3,72 +3,87 @@ import axios from 'axios';
 import './App.css';
 
 const App = () => {
-    const [loading, setLoading] = useState(false);
-    const [errorText, setErrorText] = useState("");
-    const [tasks, setTasks] = useState([]);
-    const [task, setTask] = useState({
-      title: "",
-      description: ""
-    });
-    const [taskAdded, setTaskAdded] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [task, setTask] = useState({
+    title: "",
+    description: ""
+  });
+  const [taskAdded, setTasksUpdated] = useState(false)
 
-    useEffect(() => {
-      console.log('useEffect rendered');
-        axios
-          .get("http://localhost:3000/tasks")
-          .then((response) => {
-            console.log('=>',response);
-            if (response.status === 200) {
-              setTasks(response.data);
-              errorText?.length > 0 && setErrorText("");
-            }
-          })
-          .catch((err) => {
-            if (err.response) {
-              setErrorText(err.response.data.message);
-              setTasks([]);
-            }
-          })
-          .finally(() => {
-            setLoading(false);
+  useEffect(() => {
+    console.log('useEffect rendered');
+      axios
+        .get("http://localhost:3000/tasks")
+        .then((response) => {
+          console.log('=>',response);
+          if (response.status === 200) {
+            setTasks(response.data);
+            errorText?.length > 0 && setErrorText("");
+          }
+        })
+        .catch((err) => {
+          if (err.response) {
+            setErrorText(err.response.data.message);
+            setTasks([]);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+  }, [taskAdded]);
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+    setTasksUpdated(false);
+    axios
+      .post("http://localhost:3000/tasks", {
+        title: task.title,
+        description: task.description,
+        isDone: false
+      })
+      .then((response) => {
+        if (response.status === 201) {
+          setTask({
+            title: "",
+            description: ""
           });
-    }, [taskAdded]);
-
-   
-      const submitHandler = (e) => {
-        e.preventDefault();
-    
-        setLoading(true);
-        setTaskAdded(false);
-        axios
-          .post("http://localhost:3000/tasks", {
-            id: tasks.length + 1,
-            title: task.title,
-            description: task.description,
-            isDone: false
-          })
-          .then((response) => {
-            console.log("post --->", response);
-            if (response.status === 201) {
-              setTask({
-                title: "",
-                description: ""
-              });
-              setTaskAdded(true);
-            }
-          })
-          .catch((err) => {
+          setTasksUpdated(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const removeTaskHandler = (id) => {
+    if (window.confirm("برای حذف این یادداشت مطئن هستید؟")) {
+      setTasksUpdated(false);
+      axios
+        .delete(`http://localhost:3000/tasks/${id}`)
+        .then((response) => {
+          if (response.status === 200) {
+            setTasksUpdated(true);
+          }
+        })
+        .catch((err) => {
+          if (err) {
             console.log(err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      };
+            window.alert(err.response.statusText)
+          }
+        });
+    }
+  };
 
   return (
     <div className='todo-container' dir='rtl'>
         <div className="todo-wrapper">
-          <h5>وظیفه های مقرر شده</h5>
+          <h5>یادداشت های ثبت شده</h5>
             {loading ? (
             <div className="w-100">
                 <span>Loading...</span>
@@ -80,7 +95,7 @@ const App = () => {
                 <strong className='title'>{task.title}</strong>
                 <p className='description'>{task.description}</p>
                 <div className="tasks-options-wrapper">
-                  <button type='button' className='delete-button'>حذف</button>
+                  <button type='button' className='delete-button' onClick={() => removeTaskHandler(task.id)}>حذف</button>
                   <input
                     type="checkbox"
                     className="check-task-status"
