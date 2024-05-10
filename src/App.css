@@ -1,3 +1,41 @@
 .w-100 {
   width: 100% !important;
 }
+.todo-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.todo-wrapper {
+
+}
+.todo-container h5 {
+  text-align: right;
+}
+.task-wrapper {
+  display: flex;
+  flex-flow: row-reverse wrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-width: 400px;
+}
+.title {
+  font-size: 14px;
+}
+.description {
+  font-size: 12px;
+}
+.tasks-options-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 80px;
+}
+.delete-button {
+  all: unset;
+  font-size: 10px;
+}

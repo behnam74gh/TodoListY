@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios';
+import './App.css';
 
 const App = () => {
     const [loading, setLoading] = useState(false);
@@ -29,8 +30,9 @@ const App = () => {
     }, []);
 
   return (
-    <div>
-        <div className="w-100">
+    <div className='todo-container'>
+        <div className="todo-wrapper">
+          <h5>وظیفه های مقرر شده</h5>
             {loading ? (
             <div className="w-100">
                 <span>Loading...</span>
@@ -39,19 +41,16 @@ const App = () => {
             tasks.length > 0 &&
             tasks.map((task) => (
               <div className="task-wrapper" key={task.id}>
-                <span className="font-sm">{task.description}</span>
+                <strong className='title'>{task.title}</strong>
+                <p className='description'>{task.description}</p>
                 <div className="tasks-options-wrapper">
-                    <span
-                    className="d-flex-center-center"
-                    >
-                    {/* <MdDelete className="text-red" /> */}del
-                    </span>
-                    <input
-                      type="checkbox"
-                      className="check-task-status"
-                      value={task.isDone.toLowerCase() === "true" ? true : false}
-                      checked={task.isDone.toLowerCase() === "true" ? true : false}
-                    />
+                  <button type='button' className='delete-button'>حذف</button>
+                  <input
+                    type="checkbox"
+                    className="check-task-status"
+                    value={task.isDone.toLowerCase() === "true" ? true : false}
+                    checked={task.isDone.toLowerCase() === "true" ? true : false}
+                  />
                 </div>
               </div>
             ))

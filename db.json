@@ -1,6 +1,6 @@
 {
     "tasks": [
-      { "id": "1", "title": "do a thing..", "description": "description for task 1", "isDone": "true" },
-      { "id": "2", "title": "do something..", "description": "description for task 2", "isDone": "false" }
+      { "id": "1", "title": "عنوان اول", "description": "توضیحات تسک اول", "isDone": "true" },
+      { "id": "2", "title": "عنوان دوم", "description": "توضیحات تسک دوم", "isDone": "false" }
     ]
 }
