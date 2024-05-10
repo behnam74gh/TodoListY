@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios';
 import './App.css';
+import TodoList from './components/TodoList/TodoList';
 
 const App = () => {
   const [mode, setMode] = useState('create');
@@ -159,15 +160,15 @@ const App = () => {
       <div className="form-wrapper">
         <h5>لطفا عنوان و متن یادداشت را وارد نمایید</h5>
         <form className="todo-form" onSubmit={submitHandler}>
-          <input type='text' placeholder='عنوان' value={task.title} className='w-100'
+          <input type='text' placeholder='عنوان' value={task.title} className='w-50'
             onChange={(e) => setTask({...task, title: e.target.value})}
           />
 
-          <textarea value={task.description} placeholder='توضیحات' rows="5" className='w-100'
+          <textarea value={task.description} placeholder='توضیحات' rows="5" className='w-50'
             onChange={(e) => setTask({...task, description: e.target.value})}
           ></textarea>
           
-          <button type="submit" className='w-50'>
+          <button type="submit" className='w-25'>
           {loading ? "Loading ..." : mode === "create" ? "ثبت یادداشت" : "ویرایش یادداشت"}
           </button>
         </form>
@@ -175,36 +176,9 @@ const App = () => {
 
       <hr />
 
-      <div className="todo-wrapper">
-        <h5>یادداشت های ثبت شده</h5>
-        {loading ? (
-        <div className="w-100">
-            <span>Loading...</span>
-        </div>
-        ) : (
-        tasks.length > 0 &&
-        tasks.map((task) => (
-          <div className="task-wrapper" style={{background: activeTask === task.id && "#E1AFD1"}} key={task.id}>
-            <strong className='title'>{task.title}</strong>
-            <p className='description'>{task.description}</p>
-            <div className="tasks-options-wrapper">
-              <button type='button' className='update-button' onClick={() => updateTaskHandler(task)}>
-                {activeTask === task.id ? "لغو" : "ویرایش"}
-              </button>
-              <button type='button' className='delete-button' onClick={() => removeTaskHandler(task.id)}>حذف</button>
-              <input
-                type="checkbox"
-                className="check-task-status"
-                value={task.isDone ? true : false}
-                checked={task.isDone ? true : false}
-                onChange={() => changeStatusHandler(task)}
-              />
-            </div>
-          </div>
-        ))
-        )}
-        {errorText.length > 0 && <p className='warning-message'>{errorText}</p>}
-      </div>
+      <TodoList loading={loading} tasks={tasks} errorText={errorText} activeTask={activeTask}
+        updateTask={updateTaskHandler} removeTask={removeTaskHandler} changeStatus={changeStatusHandler}
+      />
     </div>
   )
 }
